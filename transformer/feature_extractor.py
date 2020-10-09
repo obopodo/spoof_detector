@@ -1,0 +1,12 @@
+from .img_prerprocessor import img_preprocessor
+from .features import *
+
+def extract_features(img):
+    img_norm = img_preprocessor(img)
+
+    specular_features = specular_features(img_norm)
+    blurriness_features = np.array([blurriness_feature_1(img_norm), blurriness_feature_2(img_norm)])
+    chromatic_features = chromatic_moments(img_norm)
+    color_features = color_diversity(img_norm)
+
+    return np.concatenate((specular_features, blurriness_features, chromatic_features, color_features))
