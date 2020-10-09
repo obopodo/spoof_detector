@@ -2,7 +2,7 @@ from .read_data import read_train, read_test
 from  .feature_extractor import extract_features
 import numpy as np
 
-def images_to_features(folder, is_train = True, return_images=False, save_features = True):
+def data_convertor(folder, is_train = True, save_features = True):
     '''
     Extract features from images, and save them if needed.
     returns X, y as np.arrays. If return_images==True also returns list of images.

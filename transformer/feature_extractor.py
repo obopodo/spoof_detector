@@ -1,8 +1,8 @@
-from .img_prerprocessor import img_preprocessor
+from .normalize_img import normalize
 from .features import *
 
 def extract_features(img):
-    img_norm = img_preprocessor(img)
+    img_norm = normalize(img)
 
     specular_f = specular_features(img_norm)
     blurriness_f = np.array([blurriness_feature_1(img_norm), blurriness_feature_2(img_norm)])

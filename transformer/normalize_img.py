@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-def img_preprocessor(img):
-    return normalize(face_cropper(img))
+def normalize(img):
+    return resize(face_cropper(img))
 
 
 face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -39,7 +39,7 @@ def face_cropper(img):
 
     return img_cropped
 
-def normalize(img):
+def resize(img):
     '''
     resize image to (175, 200) with different algorithm if it's downscaled or upscaled
     '''

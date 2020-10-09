@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from sklearn.model_selection import train_test_split
-from .transformer.images_to_features import images_to_features
+from .transformer.data_convertor import convert_train
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, cross_val_score
@@ -28,7 +28,7 @@ def PR_AUC_score(y_true, y_pred):
     return auc(recall, precision)
 
 def prepare_data(trainfolder):
-    X, y = images_to_features(trainfolder, is_train=True, return_images=False, save_features=True)
+    X, y = convert_train(trainfolder, save_features=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.2)
     return X_train, y_train, X_test, y_test
 
