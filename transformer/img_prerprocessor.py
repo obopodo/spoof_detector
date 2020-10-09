@@ -43,8 +43,9 @@ def normalize(img):
     '''
     resize image to (175, 200) with different algorithm if it's downscaled or upscaled
     '''
-    if img.shape[0] > 200:
+    if img.shape[0] >= 200:
         img_resized = cv2.resize(img, (175, 200), interpolation = cv2.INTER_AREA) # downscale
-    elif img.shape[0] < 200:
+    else:
         img_resized = cv2.resize(img, (175, 200), interpolation = cv2.INTER_CUBIC) # upscale
+
     return img_resized

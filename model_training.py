@@ -1,13 +1,13 @@
 import numpy as np
 import cv2
 from sklearn.model_selection import train_test_split
-from transformer.images_to_features import dataset_to_features
+from .transformer.images_to_features import images_to_features
 
-from sklearn.preprocessing import MinMaxScaler , StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, cross_val_score
 
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import f1_score, make_scorer
+from sklearn.metrics import f1_score, auc, precision_recall_curve, make_scorer
 from sklearn.metrics import classification_report
 
 from sklearn.pipeline import make_pipeline, Pipeline
@@ -17,39 +17,58 @@ import dill
 
 trainfolder = '../Data/train/'
 
-X, y = dataset_to_features(trainfolder, is_train=True)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.2)
-
-cv_strat = StratifiedKFold(5, shuffle=True)
-scaler = MinMaxScaler()
-classifier = XGBClassifier(max_depth=5, learning_rate=0.01, n_estimators=100, gamma=0, \
-                           min_child_weight=1, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.005)
-
 def create_pipeline(scaler, classifier):
     return Pipeline([('scaler', scaler), ('classifier', classifier)])
 
-pipeline = create_pipeline(scaler, classifier)
+def PR_AUC_score(y_true, y_pred):
+    '''
+    precision-recall AUC metric
+    '''
+    precision, recall, _ = precision_recall_curve(y_true, y_pred)
+    return auc(recall, precision)
 
-tuninig_params = {'n_estimators': [50, 100, 300, 500],
-                  'max_depth': [3, 5, 10],
-                  'learning_rate': [0.005, 0.01, 0.05]
-                 }
+def prepare_data(trainfolder):
+    X, y = images_to_features(trainfolder, is_train=True, return_images=False, save_features=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.2)
+    return X_train, y_train, X_test, y_test
 
-grid_search = RandomizedSearchCV(pipeline, tuninig_params, scoring=...,
-                                 cv=cv_strat, verbose=1, n_iter=8, n_jobs=3)
+def tune_parameters(X_train, y_train):
+    cv_strat = StratifiedKFold(5, shuffle=True)
+    scaler = MinMaxScaler()
+    classifier = XGBClassifier(max_depth=5, learning_rate=0.01, n_estimators=100, gamma=0, \
+                               min_child_weight=1, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.005)
 
-grid_search.fit(X_train, y_train)
+    pipeline = create_pipeline(scaler, classifier)
 
-best_params = grid_search.best_params_
-print(best_params)
+    tuninig_params = {'classifier__n_estimators': [50, 100, 300, 500],
+                      'classifier__max_depth': [3, 5, 10],
+                      'classifier__learning_rate': [0.005, 0.01, 0.05]
+                     }
 
-# Retrain estimator:
+    score_metrics = {'F1': make_scorer(f1_score),
+                     'PR_AUC': make_scorer(PR_AUC_score)}
 
-classifier_tuned = XGBClassifier(**best_params)
-pipeline_tuned = create_pipeline(scaler, classifier_tuned)
+    grid_search = RandomizedSearchCV(pipeline, tuninig_params,
+                                     scoring=score_metrics,
+                                     refit='PR_AUC',
+                                     cv=cv_strat, verbose=1, n_iter=8, n_jobs=3)
 
-pipeline_tuned.fit()
+    grid_search.fit(X_train, y_train)
+    return grid_search
 
-with open('pretrained_model.model', 'wb') as ouf:
-    dill.dump(pipeline_tuned, ouf)
+def retrain_best_model(grid_searched, save_model=True):
+    best_params = grid_searched.best_params_
+    print('BEST PARAMETERS')
+    print(best_params)
+
+    # Retrain estimator:
+    classifier_tuned = XGBClassifier(**best_params)
+    model_tuned = create_pipeline(scaler, classifier_tuned)
+
+    model_tuned.fit()
+
+    if save_model:
+        with open('pretrained.model', 'wb') as ouf:
+            dill.dump(model_tuned, ouf)
+
+    return model_tuned
