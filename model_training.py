@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from sklearn.model_selection import train_test_split
-from transformer import feature_extractor, read_data
+from transformer.images_to_features import dataset_to_features
 
 from sklearn.preprocessing import MinMaxScaler , StandardScaler
 from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, cross_val_score
@@ -17,14 +17,7 @@ import dill
 
 trainfolder = '../Data/train/'
 
-features_already_extracted = False
-if not features_already_extracted:
-    imgs, y = read_data.read_train(trainfolder) # read images and their classes
-    X = np.array([feature_extractor.extract_features(img) for img in imgs]) # extract features from images
-    np.savetxt(trainfolder + 'X_y.txt', np.hstack((X, y.reshape(-1, 1)))) # save extracted features
-else:
-    X_y = np.fromfile(trainfolder + 'X_y.txt')
-    X, y = X_y[:, :-1], X_y[:, -1]
+X, y = dataset_to_features(trainfolder, is_train=True)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.2)
 
