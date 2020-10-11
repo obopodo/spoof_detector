@@ -10,7 +10,7 @@ def img_generator(filenames):
 def read_data(filenames, amount_of_files):
     X = []
     for i, img in enumerate(img_generator(filenames)):
-        print(f'\rProcessing {i} of {amount_of_files} images', end='')
+        print(f'\rProcessing {i+1} of {amount_of_files} images ', end='')
         X.append(extract_features(img))
     print('\n')
 

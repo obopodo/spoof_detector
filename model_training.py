@@ -27,8 +27,8 @@ def PR_AUC_score(y_true, y_pred):
     precision, recall, _ = precision_recall_curve(y_true, y_pred)
     return auc(recall, precision)
 
-def prepare_data(trainfolder):
-    X, y = convert_train(trainfolder, save_features=True)
+def prepare_data(trainfolder, save_features=True):
+    X, y = convert_train(trainfolder, save_features)
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify = y, test_size = 0.2)
     return X_train, y_train, X_test, y_test
 
@@ -56,8 +56,8 @@ def tune_parameters(X_train, y_train):
     grid_search.fit(X_train, y_train)
     return grid_search
 
-def retrain_best_model(grid_searched, save_model=True):
-    best_params = grid_searched.best_params_
+def retrain_best_model(grid_search_result, X_train, y_train, X_valid, y_valid, save_model=True):
+    best_params = grid_search_result.best_params_
     print('BEST PARAMETERS')
     print(best_params)
 
@@ -65,7 +65,10 @@ def retrain_best_model(grid_searched, save_model=True):
     classifier_tuned = XGBClassifier(**best_params)
     model_tuned = create_pipeline(scaler, classifier_tuned)
 
-    model_tuned.fit()
+    X = np.vstack((X_train, X_valid))
+    y = np.append(y_train, y_valid)
+
+    model_tuned.fit(X, y)
 
     if save_model:
         with open('pretrained.model', 'wb') as ouf:
