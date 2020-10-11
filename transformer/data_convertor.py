@@ -12,9 +12,9 @@ def read_data(filenames, amount_of_files):
     for i, img in enumerate(img_generator(filenames)):
         print(f'\rProcessing {i+1} of {amount_of_files} images ', end='')
         X.append(extract_features(img))
-    print('\n')
+    print('Done!\n')
 
-    return np.array(X)
+    return np.vstack(X)
 
 def convert_train(trainfolder, save_features=True):
     '''
@@ -36,7 +36,7 @@ def convert_train(trainfolder, save_features=True):
     y = np.append(y_real, y_spoof)
 
     if save_features:
-        np.savetxt('X_y_train.txt', np.hstack((X, y.reshape(-1, 1)))) # save extracted features
+        np.savetxt(trainfolder + 'X_y_train.txt', np.hstack((X, y.reshape(-1, 1)))) # save extracted features
 
     return X, y
 
@@ -53,6 +53,9 @@ def convert_test(testfolder, save_features=True):
     X_test = read_data(test_filenames, test_amount)
 
     if save_features:
-        np.savetxt('X_test.txt', X_test) # save extracted features
+        print('Please, input file`s path')
+        path = input()
+        os.makedirs(path, exist_ok=True)
+        np.savetxt(path + 'X_test.txt', X_test) # save extracted features
 
     return X_test, names

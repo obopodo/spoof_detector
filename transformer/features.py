@@ -81,23 +81,29 @@ def chromatic_moments(img):
     return np.array(m + s + skew + min_bin + max_bin)
 
 ### STILL DON'T QUITE UNDERSTAND WHICH COLOR DIVERSITY METRIC IS BETTER
-### HIST OR JUST TOP 100 DISTINCT COLORS. NOW DISTINCT COLORS ARE USED
+### HIST OR JUST TOP 100 DISTINCT COLORS. NOW HIST IS USED BECAUSE IT SEEMS
+### LIKE SOMETIMES THERE COULD BE LESS THEN 100 COLORS WHICH LEADS TO A MISTAKE
 
 def color_diversity(img):
+    '''
+    Colors histogram
+    '''
     quantized = (img // 8)
-    quantized = quantized.reshape(-1, 3)
-
-    colors_distribution = np.unique(quantized, axis=0, return_counts=True)
-    n_distinct_colors = colors_distribution[0].shape[0]
-    top_100_colors_counts = np.sort(colors_distribution[1])[-100:]
-    result = np.append(top_100_colors_counts, n_distinct_colors)
+    channels = [quantized[:,:,i].flatten() for i in range(3)]
+    img_flatten = channels[0] + 32*channels[1] + 32*32*channels[2]
+    n_distinct_colors = np.unique(img_flatten).shape[0]
+    bins_counts = np.sort(np.histogram(img_flatten, bins=100)[0])
+    result = np.append(bins_counts, n_distinct_colors)
     return result
 
-# def color_diversity_hist(img):
+
+# def color_diversity(img):
+# '''Top 100 distinct colors freqs'''
 #     quantized = (img // 8)
-#     channels = [quantized[:,:,i].flatten() for i in range(3)]
-#     img_flatten = channels[0] + 32*channels[1] + 32*32*channels[2]
-#     n_distinct_colors = np.unique(img_flatten).shape[0]
-#     bins_counts = np.sort(np.histogram(img_flatten, bins=100)[0])
-#     result = np.append(bins_counts, n_distinct_colors)
+#     quantized = quantized.reshape(-1, 3)
+#
+#     colors_distribution = np.unique(quantized, axis=0, return_counts=True)
+#     n_distinct_colors = colors_distribution[0].shape[0]
+#     top_100_colors_counts = np.sort(colors_distribution[1])[-100:]
+#     result = np.append(top_100_colors_counts, n_distinct_colors)
 #     return result
