@@ -1,5 +1,6 @@
 import numpy as np
 from .transformer.data_convertor import convert_test
+import sys
 
 def predict_test(model=None, data_path='', extracted=False):
     '''
@@ -30,3 +31,8 @@ def predict_test(model=None, data_path='', extracted=False):
     with open('results_on_test.txt', 'wt') as ouf:
         for name, prob in zip(filenames, pred_probs[:, 1]):
             ouf.write(name + ',' + str(prob) + '\n')
+
+
+if __name__ == '__main__':
+    path = sys.argv[0]
+    predict_test(model=None, data_path=path, extracted=True)
