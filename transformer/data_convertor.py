@@ -57,5 +57,6 @@ def convert_test(testfolder, save_features=True):
         path = input()
         os.makedirs(path, exist_ok=True)
         np.savetxt(path + 'X_test.txt', X_test) # save extracted features
+        np.savetxt(path + 'X_test_filenames.txt', np.array(names), fmt='%s')
 
     return X_test, names
