@@ -1,7 +1,7 @@
 # spoof-detector
 Spoof detector for admission to internship in DSP Labs
 Package is still in development
-To run example type `python Predict.py extracted_data/`, path to pretrained model is simple `pretrained.model`
+To run example type in terminal `python Predict.py extracted_data/`, path to pretrained model is simple `pretrained.model`
 
 Dependencies:
 * numpy
