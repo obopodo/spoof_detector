@@ -1,5 +1,5 @@
 import numpy as np
-from .transformer.data_convertor import convert_test
+from transformer.data_convertor import convert_test
 import sys
 
 def predict_test(model=None, data_path='', extracted=False):
@@ -34,5 +34,6 @@ def predict_test(model=None, data_path='', extracted=False):
 
 
 if __name__ == '__main__':
-    path = sys.argv[0]
+    path = sys.argv[1]
+    print(path)
     predict_test(model=None, data_path=path, extracted=True)
