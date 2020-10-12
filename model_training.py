@@ -13,7 +13,8 @@ from sklearn.metrics import classification_report
 from sklearn.pipeline import make_pipeline, Pipeline
 from xgboost import XGBClassifier
 
-import dill
+# import dill
+import joblib
 
 trainfolder = '../Data/train/'
 
@@ -44,9 +45,9 @@ def tune_parameters(X_train, y_train):
 
     pipeline = create_pipeline(classifier)
 
-    tuninig_params = {'classifier__n_estimators': [50, 100, 300, 500],
-                      'classifier__max_depth': [3, 5, 10],
-                      'classifier__learning_rate': [0.005, 0.01, 0.05]
+    tuninig_params = {'classifier__n_estimators': [50, 100, 200, 400, 500],
+                      'classifier__max_depth': [3, 5, 8, 10, 15],
+                      'classifier__learning_rate': [0.005, 0.01, 0.05, 0.08]
                      }
 
     score_metrics = {'F1': make_scorer(f1_score),
@@ -55,7 +56,7 @@ def tune_parameters(X_train, y_train):
     grid_search = RandomizedSearchCV(pipeline, tuninig_params,
                                      scoring=score_metrics,
                                      refit='PR_AUC',
-                                     cv=cv_strat, verbose=1, n_iter=8, n_jobs=3)
+                                     cv=cv_strat, verbose=2, n_iter=20, n_jobs=3)
 
     grid_search.fit(X_train, y_train)
     return grid_search
@@ -75,7 +76,6 @@ def retrain_best_model(grid_search_result, X_train, y_train, X_valid, y_valid, s
     model_tuned.fit(X, y)
 
     if save_model:
-        with open('pretrained.model', 'wb') as ouf:
-            dill.dump(model_tuned, ouf)
+        joblib.dump(model_tuned, 'pretrained.model')
 
     return model_tuned
