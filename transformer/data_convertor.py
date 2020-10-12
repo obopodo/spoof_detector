@@ -53,7 +53,7 @@ def convert_test(testfolder, save_features=True):
     X_test = read_data(test_filenames, test_amount)
 
     if save_features:
-        print('Please, input file`s path')
+        print('Please, input path for saving')
         path = input()
         os.makedirs(path, exist_ok=True)
         np.savetxt(path + 'X_test.txt', X_test) # save extracted features
