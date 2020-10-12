@@ -79,3 +79,12 @@ def retrain_best_model(grid_search_result, X_train, y_train, X_valid, y_valid, s
         joblib.dump(model_tuned, 'pretrained.model')
 
     return model_tuned
+
+
+if __name__ == '__main__':
+    import sys
+    data_path = sys.argv[1]
+
+    X_train, y_train, X_valid, y_valid = prepare_data(complete_dataset_path, save_features=True, extracted=False)
+    gs = tune_parameters(X_train, y_train)
+    best = retrain_best_model(gs, X_train, y_train, X_valid, y_valid)
