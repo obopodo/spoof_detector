@@ -1,6 +1,6 @@
 # spoof-detector
-Spoof detector for admission to internship in DSP Labs
-Package is still in development
+Helper functions module for face spoof detection algorithm
+Module is still in development
 To run example type in terminal `python Predict.py extracted_data/`, path to pretrained model is simple `pretrained.model`
 
 Dependencies:
